@@ -1,56 +1,70 @@
-# LogTracker - Mobile Log Management App
+# LogTracker - Application Mobile de Gestion de Logs
 
-A modern Flutter application for log management with a clean UI and intuitive UX. This app allows users to track, filter, and analyze application logs on mobile devices.
+Une application Flutter moderne pour la gestion des journaux d'applications avec une interface utilisateur élégante et une expérience utilisateur intuitive. Cette application permet aux utilisateurs de suivre, filtrer et analyser les logs d'applications sur appareils mobiles.
 
-## Features
+## Fonctionnalités
 
-- **Splash Screen**: Animated logo and loading indicator
-- **Onboarding**: Introduction to app features with smooth animations
-- **Authentication**: Login screen with email/password and Google sign-in options
-- **Dashboard**: Overview of log statistics with charts and recent logs
-- **Log Listing**: Complete list of logs with filtering and search capabilities
-- **Log Details**: Detailed view of individual logs with metadata and stacktrace
-- **Dark Mode Support**: Full support for light and dark themes
-- **Responsive Design**: Works on various screen sizes
+- **Écran de démarrage**: Logo animé et indicateur de chargement
+- **Onboarding**: Introduction aux fonctionnalités de l'application avec animations fluides
+- **Authentification**: Écran de connexion avec options email/mot de passe et connexion Google
+- **Tableau de bord**: Vue d'ensemble des statistiques de logs avec graphiques et journaux récents
+- **Liste des logs**: Liste complète des journaux avec capacités de filtrage et de recherche
+- **Détails des logs**: Vue détaillée des journaux individuels avec métadonnées et stacktrace
+- **Notifications push**: Alertes en temps réel pour les erreurs critiques via Firebase Messaging
+- **Support du mode sombre**: Prise en charge complète des thèmes clair et sombre
+- **Design responsive**: Fonctionne sur différentes tailles d'écran
 
-## Technical Details
+## Détails Techniques
 
 - **Framework**: Flutter 3.x
-- **State Management**: Provider
-- **UI**: Material Design 3
-- **Animations**: Flutter Animate for smooth transitions
-- **Charts**: FL Chart for data visualization
+- **Gestion d'état**: Bloc/Cubit
+- **Interface utilisateur**: Material Design 3
+- **Animations**: Flutter Animate pour des transitions fluides
+- **Graphiques**: FL Chart pour la visualisation des données
+- **Notifications**: Firebase Cloud Messaging avec flutter_local_notifications
 
-## Project Structure
+## Structure du Projet
 
 ```
 lib/
-├── constants/       # App-wide constants and theme definitions
-├── models/          # Data models
-├── providers/       # State management
-├── screens/         # UI screens
-├── widgets/         # Reusable UI components
-├── utils/           # Utility functions
-└── main.dart        # App entry point
+├── constants/       # Constantes et définitions de thème
+├── models/          # Modèles de données
+├── cubits/          # Gestion d'état avec Bloc/Cubit
+├── screens/         # Écrans de l'interface utilisateur
+├── widgets/         # Composants UI réutilisables
+├── services/        # Services (Firebase, notifications, etc.)
+├── utils/           # Fonctions utilitaires
+└── main.dart        # Point d'entrée de l'application
 ```
 
-## Getting Started
+## Configuration des Notifications Push
 
-1. Ensure you have Flutter installed on your machine
-2. Clone this repository
-3. Run `flutter pub get` to install dependencies
-4. Run `flutter run` to start the application
+L'application est configurée pour afficher les notifications push dans tous les scénarios :
+- Lorsque l'application est au premier plan
+- Lorsque l'application est en arrière-plan
+- Lorsque l'application est fermée
 
-## Mock Data
+Le package `flutter_local_notifications` est utilisé en conjonction avec Firebase Messaging pour gérer l'affichage des notifications locales et assurer une expérience utilisateur cohérente.
 
-The app uses mock data for demonstration purposes. In a real-world scenario, this would be replaced with API calls to a backend service.
+## Mise en Route
 
-## Future Improvements
+1. Assurez-vous d'avoir Flutter installé sur votre machine
+2. Clonez ce dépôt
+3. Exécutez `flutter pub get` pour installer les dépendances
+4. Configurez votre projet Firebase:
+   - Créez un projet dans la console Firebase
+   - Ajoutez les fichiers de configuration (google-services.json pour Android, GoogleService-Info.plist pour iOS)
+5. Exécutez `flutter run` pour démarrer l'application
 
-- Backend integration with real-time log streaming
-- Push notifications for critical errors
-- Advanced filtering options
-- Custom log categories
-- Export logs to various formats
-- User management and team collaboration features
-# hackathon-log-front-mobile
+## Données de Démonstration
+
+L'application utilise des données simulées à des fins de démonstration. Dans un scénario réel, celles-ci seraient remplacées par des appels API à un service backend.
+
+## Améliorations Futures
+
+- Intégration backend avec streaming de logs en temps réel
+- Options de filtrage avancées
+- Catégories de logs personnalisées
+- Exportation des logs dans différents formats
+- Gestion des utilisateurs et fonctionnalités de collaboration en équipe
+- Tableau de bord analytique avancé avec plus de visualisations

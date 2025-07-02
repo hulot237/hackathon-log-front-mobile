@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../models/log.dart';
 import '../cubits/log/log_cubit.dart';
@@ -18,10 +20,33 @@ class DashboardScreen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Tableau de bord'),
+            elevation: 0,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light,
+            ),
+            title: const Text(
+              'Tableau de bord',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.person_outline),
+                icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Les notifications s\'afficheraient ici'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.person_outline, color: Colors.white),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -33,34 +58,49 @@ class DashboardScreen extends StatelessWidget {
               ),
             ],
           ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with welcome message and date
-                  _buildHeader(context),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Statistics cards
-                  _buildStatisticsCards(context, state),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Chart
-                  _buildLogActivityChart(context, state),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Recent logs
-                  _buildRecentLogsList(context, state),
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                  Colors.white,
                 ],
               ),
             ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with welcome message and date
+                    _buildHeader(context),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Statistics cards
+                    _buildStatisticsCards(context, state),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Chart
+                    _buildLogActivityChart(context, state),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Recent logs
+                    _buildRecentLogsList(context, state),
+                    
+                    // Bottom padding for floating action button
+                    const SizedBox(height: 80),
+                  ],
+                ),
+              ),
+            ),
           ),
-          floatingActionButton: FloatingActionButton(
+          floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
               Navigator.push(
                 context,
@@ -69,7 +109,14 @@ class DashboardScreen extends StatelessWidget {
                 ),
               );
             },
-            child: const Icon(Icons.list),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            elevation: 4,
+            icon: const Icon(Icons.list_alt, color: Colors.white),
+            label: const Text('Liste des journaux', style: TextStyle(color: Colors.white)),
+          ).animate().scale(
+            duration: 600.ms,
+            delay: 800.ms,
+            curve: Curves.elasticOut,
           ),
         );
       },
@@ -80,23 +127,41 @@ class DashboardScreen extends StatelessWidget {
     final today = DateTime.now();
     final dateFormat = DateFormat('EEEE d MMMM yyyy', 'fr_FR');
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Bienvenue, Administrateur',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          dateFormat.format(today),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Bienvenue, Administrateur',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, end: 0, duration: 500.ms),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today,
+                size: 16,
+                color: Colors.grey[600],
+              ),
+              const SizedBox(width: 8),
+              Text(
+                dateFormat.format(today),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ).animate().fadeIn(delay: 200.ms, duration: 500.ms),
+        ],
+      ),
     );
   }
 
@@ -105,11 +170,12 @@ class DashboardScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Statistics',
+          'Statistiques',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
           ),
-        ),
+        ).animate().fadeIn(duration: 400.ms),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -123,7 +189,8 @@ class DashboardScreen extends StatelessWidget {
               'Total des journaux',
               state.totalLogs.toString(),
               Icons.list_alt,
-              Colors.blue,
+              Theme.of(context).colorScheme.primary,
+              delay: 100,
             ),
             _buildStatCard(
               context,
@@ -131,6 +198,7 @@ class DashboardScreen extends StatelessWidget {
               state.errorCount.toString(),
               Icons.error_outline,
               Colors.red,
+              delay: 200,
             ),
             _buildStatCard(
               context,
@@ -138,6 +206,7 @@ class DashboardScreen extends StatelessWidget {
               state.warningCount.toString(),
               Icons.warning_amber_outlined,
               Colors.orange,
+              delay: 300,
             ),
             _buildStatCard(
               context,
@@ -145,6 +214,7 @@ class DashboardScreen extends StatelessWidget {
               state.infoCount.toString(),
               Icons.info_outline,
               Colors.blue,
+              delay: 400,
             ),
           ],
         ),
@@ -158,40 +228,65 @@ class DashboardScreen extends StatelessWidget {
     String value,
     IconData icon,
     Color color,
+    {int delay = 0}
   ) {
     return Card(
-      elevation: 2,
+      elevation: 4,
+      shadowColor: color.withOpacity(0.3),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Padding(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              color.withOpacity(0.05),
+            ],
+          ),
+        ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 32,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 28,
+              ),
             ),
             const Spacer(),
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: color,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
+                color: Colors.grey[700],
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
       ),
-    );
+    ).animate()
+      .fadeIn(duration: 400.ms, delay: delay.ms)
+      .slideY(begin: 0.2, end: 0, duration: 300.ms, delay: delay.ms)
+      .scale(begin: const Offset(0.95, 0.95), duration: 300.ms, delay: delay.ms);
   }
 
   Widget _buildLogActivityChart(BuildContext context, LogState state) {
@@ -207,19 +302,50 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Activité des journaux',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Activité des journaux',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.date_range,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '7 derniers jours',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ).animate().fadeIn(duration: 400.ms),
         const SizedBox(height: 16),
         Container(
-          height: 200,
+          height: 240,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -236,8 +362,9 @@ class DashboardScreen extends StatelessWidget {
                 horizontalInterval: 1,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: Colors.grey[300],
+                    color: Colors.grey[200],
                     strokeWidth: 1,
+                    dashArray: [5, 5],
                   );
                 },
               ),
@@ -258,10 +385,11 @@ class DashboardScreen extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            DateFormat('E').format(date),
+                            DateFormat('E', 'fr_FR').format(date),
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 12,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         );
@@ -281,6 +409,7 @@ class DashboardScreen extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
                       );
                     },
@@ -291,6 +420,22 @@ class DashboardScreen extends StatelessWidget {
               borderData: FlBorderData(
                 show: false,
               ),
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  tooltipBgColor: Theme.of(context).colorScheme.primary,
+                  tooltipRoundedRadius: 8,
+                  getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                    return touchedBarSpots.map((barSpot) {
+                      final date = logsByDay.keys.elementAt(barSpot.x.toInt());
+                      final formattedDate = DateFormat('d MMM', 'fr_FR').format(date);
+                      return LineTooltipItem(
+                        '${barSpot.y.toInt()} journaux\n$formattedDate',
+                        const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      );
+                    }).toList();
+                  },
+                ),
+              ),
               minX: 0,
               maxX: spots.length - 1.0,
               minY: 0,
@@ -299,15 +444,20 @@ class DashboardScreen extends StatelessWidget {
                 LineChartBarData(
                   spots: spots,
                   isCurved: true,
-                  color: Theme.of(context).colorScheme.primary,
-                  barWidth: 3,
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                      Theme.of(context).colorScheme.secondary,
+                    ],
+                  ),
+                  barWidth: 4,
                   isStrokeCapRound: true,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (spot, percent, barData, index) {
                       return FlDotCirclePainter(
-                        radius: 4,
-                        color: Theme.of(context).colorScheme.primary,
+                        radius: 5,
+                        color: Theme.of(context).colorScheme.secondary,
                         strokeWidth: 2,
                         strokeColor: Colors.white,
                       );
@@ -315,12 +465,19 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                        Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
+          ).animate().fadeIn(duration: 600.ms, delay: 300.ms),
         ),
       ],
     );
@@ -339,24 +496,56 @@ class DashboardScreen extends StatelessWidget {
               'Journaux récents',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            TextButton(
+            ElevatedButton.icon(
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const LogListScreen()),
                 );
               },
-              child: const Text('Voir tout'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                foregroundColor: Theme.of(context).colorScheme.primary,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+              icon: const Icon(Icons.list, size: 16),
+              label: const Text('Voir tout'),
             ),
           ],
-        ),
+        ).animate().fadeIn(duration: 400.ms, delay: 500.ms),
         const SizedBox(height: 16),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: recentLogs.length,
-          itemBuilder: (context, index) => _buildLogItem(context, recentLogs[index]),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: recentLogs.length,
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey[100],
+              indent: 16,
+              endIndent: 16,
+            ),
+            itemBuilder: (context, index) => _buildLogItem(context, recentLogs[index])
+                .animate()
+                .fadeIn(duration: 400.ms, delay: (600 + (index * 100)).ms)
+                .slideX(begin: 0.2, end: 0, duration: 300.ms, delay: (600 + (index * 100)).ms),
+          ),
         ),
       ],
     );
@@ -365,96 +554,129 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildLogItem(BuildContext context, Log log) {
     final dateFormat = DateFormat('d MMM, HH:mm', 'fr_FR');
     
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => LogDetailScreen(log: log),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: log.type.color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  log.type.icon,
-                  color: log.type.color,
-                ),
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => LogDetailScreen(log: log),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: log.type.color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: log.type.color.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: log.type.color.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            log.type.name,
-                            style: TextStyle(
-                              color: log.type.color,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                            ),
-                          ),
+              child: Icon(
+                log.type.icon,
+                color: log.type.color,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                        Text(
-                          dateFormat.format(log.timestamp),
+                        decoration: BoxDecoration(
+                          color: log.type.color.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          log.type.name,
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: log.type.color,
+                            fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      log.message,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Source: ${log.source}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: Colors.grey[500],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            dateFormat.format(log.timestamp),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    log.message,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
                     ),
-                  ],
-                ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.laptop,
+                        size: 14,
+                        color: Colors.grey[500],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        log.source,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const Icon(
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
                 Icons.chevron_right,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
