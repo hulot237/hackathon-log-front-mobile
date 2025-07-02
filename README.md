@@ -6,12 +6,11 @@ Une application Flutter moderne pour la gestion des journaux d'applications avec
 
 - **Écran de démarrage**: Logo animé et indicateur de chargement
 - **Onboarding**: Introduction aux fonctionnalités de l'application avec animations fluides
-- **Authentification**: Écran de connexion avec options email/mot de passe et connexion Google
+- **Authentification**: Écran de connexion avec options email/mot de passe 
 - **Tableau de bord**: Vue d'ensemble des statistiques de logs avec graphiques et journaux récents
 - **Liste des logs**: Liste complète des journaux avec capacités de filtrage et de recherche
 - **Détails des logs**: Vue détaillée des journaux individuels avec métadonnées et stacktrace
 - **Notifications push**: Alertes en temps réel pour les erreurs critiques via Firebase Messaging
-- **Support du mode sombre**: Prise en charge complète des thèmes clair et sombre
 - **Design responsive**: Fonctionne sur différentes tailles d'écran
 
 ## Détails Techniques

@@ -196,14 +196,21 @@ Exception in thread "main" java.lang.NullPointerException
       
       // Filter by date range
       if (startDate != null) {
+        // Créer une date de début à minuit (00:00:00)
         final start = DateTime(startDate.year, startDate.month, startDate.day);
-        if (log.timestamp.isBefore(start)) {
+        // Créer une date de fin à 23:59:59 du même jour
+        final end = DateTime(startDate.year, startDate.month, startDate.day, 23, 59, 59, 999);
+        
+        // Vérifier si le timestamp du log est dans la journée sélectionnée
+        final logDate = log.timestamp;
+        if (logDate.isBefore(start) || logDate.isAfter(end)) {
           return false;
         }
       }
       
+      // Note: La logique pour endDate est conservée mais n'est pas utilisée actuellement
       if (endDate != null) {
-        final end = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+        final end = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59, 999);
         if (log.timestamp.isAfter(end)) {
           return false;
         }

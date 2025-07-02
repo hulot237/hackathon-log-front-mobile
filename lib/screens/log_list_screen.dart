@@ -71,19 +71,7 @@ class _LogListScreenState extends State<LogListScreen> {
           ),
         ],
       ).animate().fadeIn(duration: 300.ms),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _showAddLogDialog(context);
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        elevation: 4,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Nouveau journal', style: TextStyle(color: Colors.white)),
-      ).animate().scale(
-        duration: 600.ms,
-        delay: 300.ms,
-        curve: Curves.elasticOut,
-      ),
+      // FloatingActionButton supprimé à la demande de l'utilisateur
     );
   }
 
@@ -214,66 +202,83 @@ class _LogListScreenState extends State<LogListScreen> {
                   );
                 }).toList(),
                 
-                // Date filter indicator
-                if (state.startDate != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: FilterChip(
-                      avatar: const Icon(Icons.calendar_today, size: 16, color: Colors.white),
-                      label: Text(
-                        DateFormat('d MMM y', 'fr_FR').format(state.startDate!),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-                      ),
-                      onSelected: (_) {
-                        context.read<LogCubit>().filterByDate(startDate: null);
-                      },
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      deleteIcon: const Icon(Icons.close, size: 16, color: Colors.white),
-                      onDeleted: () {
-                        context.read<LogCubit>().filterByDate(startDate: null);
-                      },
-                    ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9), end: const Offset(1.0, 1.0)),
-                  ),
-                
-                // Bouton pour ajouter un filtre de date
-                if (state.startDate == null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: ActionChip(
-                      avatar: Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      label: Text(
-                        'Filtrer par date',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      onPressed: () async {
-                        final selectedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                          lastDate: DateTime.now(),
-                          locale: const Locale('fr', 'FR'),
-                        );
-                        if (selectedDate != null) {
-                          context.read<LogCubit>().filterByDate(startDate: selectedDate);
-                        }
-                      },
-                      backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        side: BorderSide(color: Theme.of(context).colorScheme.secondary.withOpacity(0.3)),
+                // Bouton pour filtrer par date
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ActionChip(
+                    avatar: Icon(
+                      Icons.calendar_today,
+                      size: 16,
+                      color: state.startDate != null 
+                        ? Colors.white 
+                        : Theme.of(context).colorScheme.secondary,
+                    ),
+                    label: Text(
+                      state.startDate != null
+                        ? DateFormat('d MMM y', 'fr_FR').format(state.startDate!)
+                        : 'Filtrer par date',
+                      style: TextStyle(
+                        color: state.startDate != null 
+                          ? Colors.white 
+                          : Theme.of(context).colorScheme.secondary,
+                        fontWeight: state.startDate != null ? FontWeight.w500 : FontWeight.normal,
                       ),
                     ),
+                    onPressed: () async {
+                      // Si une date est déjà sélectionnée, on la réinitialise
+                      if (state.startDate != null) {
+                        context.read<LogCubit>().filterByDate(startDate: null);
+                        return;
+                      }
+                      
+                      // Sinon, on affiche le sélecteur de date amélioré
+                      final ThemeData theme = Theme.of(context);
+                      final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                        lastDate: DateTime.now(),
+                        locale: const Locale('fr', 'FR'),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: theme.copyWith(
+                              colorScheme: theme.colorScheme.copyWith(
+                                primary: Theme.of(context).colorScheme.secondary,
+                                onPrimary: Colors.white,
+                                surface: Colors.white,
+                                onSurface: Colors.black87,
+                              ),
+                              dialogBackgroundColor: Colors.white,
+                              textButtonTheme: TextButtonThemeData(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Theme.of(context).colorScheme.secondary,
+                                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      
+                      if (selectedDate != null) {
+                        context.read<LogCubit>().filterByDate(startDate: selectedDate);
+                      }
+                    },
+                    backgroundColor: state.startDate != null 
+                      ? Theme.of(context).colorScheme.secondary 
+                      : Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      side: BorderSide(
+                        color: state.startDate != null 
+                          ? Colors.transparent 
+                          : Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
+                ),
               ],
             ),
           ),
@@ -437,7 +442,9 @@ class _LogListScreenState extends State<LogListScreen> {
                         ),
                         const SizedBox(height: 4),
                         // Métadonnées
-                        Row(
+                        Wrap(
+                          spacing: 8, // Espace horizontal entre les éléments
+                          runSpacing: 4, // Espace vertical entre les lignes
                           children: [
                             // Type de log
                             Container(
@@ -458,35 +465,46 @@ class _LogListScreenState extends State<LogListScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
                             // Horodatage
-                            Icon(
-                              Icons.access_time,
-                              size: 12,
-                              color: Colors.grey[600],
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.access_time,
+                                  size: 12,
+                                  color: Colors.grey[600],
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  dateFormat.format(log.timestamp),
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              dateFormat.format(log.timestamp),
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
                             // Source
-                            Icon(
-                              Icons.code,
-                              size: 12,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              log.source,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.code,
+                                  size: 12,
+                                  color: Colors.grey[600],
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    log.source,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
