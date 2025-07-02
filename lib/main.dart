@@ -12,8 +12,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'constants/app_theme.dart';
 import 'cubits/log/log_cubit.dart';
 import 'cubits/notification/notification_cubit.dart';
+import 'cubits/user/user_cubit.dart';
 import 'screens/splash_screen.dart';
 import 'screens/notification_screen.dart';
+import 'screens/profile_screen.dart';
 
 
 
@@ -131,8 +133,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<LogCubit>(create: (_) => LogCubit()),
-        BlocProvider<NotificationCubit>(create: (_) => NotificationCubit()),
+        BlocProvider<LogCubit>(
+          create: (context) => LogCubit(),
+        ),
+        BlocProvider<NotificationCubit>(
+          create: (context) => NotificationCubit(),
+        ),
+        BlocProvider<UserCubit>(
+          create: (context) => UserCubit(),
+        ),
       ],
       child: MaterialApp(
         title: 'Suivi de Journaux',
@@ -154,6 +163,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/': (context) => const SplashScreen(),
           '/notifications': (context) => const NotificationScreen(),
+          '/profile': (context) => const ProfileScreen(),
         },
       ),
     );

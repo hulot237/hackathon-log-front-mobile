@@ -8,6 +8,8 @@ import '../cubits/log/log_cubit.dart';
 import '../cubits/log/log_state.dart';
 import '../cubits/notification/notification_cubit.dart';
 import '../cubits/notification/notification_state.dart';
+import '../cubits/user/user_cubit.dart';
+import '../cubits/user/user_state.dart';
 import '../models/log.dart';
 import 'log_detail_screen.dart';
 import 'notification_screen.dart';
@@ -100,6 +102,32 @@ class _LogListScreenState extends State<LogListScreen> {
                       ),
                     ),
                 ],
+              );
+            },
+          ),
+          BlocBuilder<UserCubit, UserState>(
+            builder: (context, state) {
+              return IconButton(
+                icon: state.user != null && state.user!.photoUrl != null
+                  ? CircleAvatar(
+                      radius: 14,
+                      backgroundImage: NetworkImage(state.user!.photoUrl!),
+                    )
+                  : CircleAvatar(
+                      radius: 14,
+                      backgroundColor: state.user != null ? state.user!.getAvatarColor() : Colors.grey,
+                      child: Text(
+                        state.user != null ? state.user!.initials : '?',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
               );
             },
           ),

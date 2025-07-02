@@ -10,9 +10,10 @@ import '../cubits/log/log_cubit.dart';
 import '../cubits/log/log_state.dart';
 import '../cubits/notification/notification_cubit.dart';
 import '../cubits/notification/notification_state.dart';
+import '../cubits/user/user_cubit.dart';
+import '../cubits/user/user_state.dart';
 import 'log_list_screen.dart';
 import 'log_detail_screen.dart';
-import 'notification_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -45,10 +46,7 @@ class DashboardScreen extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.notifications, color: Colors.white),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                          );
+                          Navigator.pushNamed(context, '/notifications');
                         },
                       ),
                       if (state.unreadCount > 0)
@@ -57,7 +55,7 @@ class DashboardScreen extends StatelessWidget {
                           right: 8,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.red,
                               shape: BoxShape.circle,
                             ),
@@ -76,14 +74,29 @@ class DashboardScreen extends StatelessWidget {
                   );
                 },
               ),
-              IconButton(
-                icon: const Icon(Icons.person_outline, color: Colors.white),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Le profil utilisateur s\'afficherait ici'),
-                      duration: Duration(seconds: 2),
-                    ),
+              BlocBuilder<UserCubit, UserState>(
+                builder: (context, state) {
+                  return IconButton(
+                    icon: state.user != null && state.user!.photoUrl != null
+                      ? CircleAvatar(
+                          radius: 14,
+                          backgroundImage: NetworkImage(state.user!.photoUrl!),
+                        )
+                      : CircleAvatar(
+                          radius: 14,
+                          backgroundColor: state.user != null ? state.user!.getAvatarColor() : Colors.grey,
+                          child: Text(
+                            state.user != null ? state.user!.initials : '?',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/profile');
+                    },
                   );
                 },
               ),
@@ -168,7 +181,7 @@ class DashboardScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bienvenue, Administrateur',
+            'Bienvenue, Groupe 3',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.primary,
@@ -188,8 +201,7 @@ class DashboardScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Colors.grey[600],
                 ),
-              ),
-            ],
+          )],
           ).animate().fadeIn(delay: 200.ms, duration: 500.ms),
         ],
       ),
