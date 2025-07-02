@@ -11,7 +11,9 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'constants/app_theme.dart';
 import 'cubits/log/log_cubit.dart';
+import 'cubits/notification/notification_cubit.dart';
 import 'screens/splash_screen.dart';
+import 'screens/notification_screen.dart';
 
 
 
@@ -64,6 +66,63 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    
+    // Vérifier si l'application a été ouverte à partir d'une notification en arrière-plan
+    _checkInitialMessage();
+    
+    // Configuration pour gérer les notifications quand l'app est au premier plan
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("🔔 Message reçu en premier plan: ${message.messageId}");
+      print("💬 Titre: ${message.notification?.title}");
+      print("💬 Corps: ${message.notification?.body}");
+      
+      // On utilise WidgetsBinding.instance.addPostFrameCallback pour s'assurer que le contexte est disponible
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          PushNotifications.showNotification(
+            message, 
+            flutterLocalNotificationsPlugin,
+            context: context,
+          );
+        }
+      });
+    });
+    
+    // Quand l'app est en arrière-plan et l'utilisateur clique sur la notification
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("➡️ App ouverte via notification: ${message.notification?.title}");
+      // Navigation vers l'écran de notifications
+      if (mounted) {
+        Navigator.pushNamed(context, '/notifications');
+      }
+    });
+  }
+  
+  // Vérifie si l'application a été ouverte à partir d'une notification lorsqu'elle était fermée
+  Future<void> _checkInitialMessage() async {
+    // Vérifier si l'application a été ouverte à partir d'une notification lorsqu'elle était fermée
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    
+    if (initialMessage != null) {
+      print("🚀 App lancée depuis une notification: ${initialMessage.notification?.title}");
+      
+      // Attendre que l'application soit complètement initialisée avant de naviguer
+      await Future.delayed(const Duration(seconds: 2));
+      
+      if (mounted) {
+        // Ajouter la notification au cubit
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          PushNotifications.showNotification(
+            initialMessage, 
+            flutterLocalNotificationsPlugin,
+            context: context,
+          );
+          
+          // Naviguer vers l'écran des notifications
+          Navigator.pushNamed(context, '/notifications');
+        });
+      }
+    }
   }
 
 
@@ -73,6 +132,7 @@ class _MyAppState extends State<MyApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<LogCubit>(create: (_) => LogCubit()),
+        BlocProvider<NotificationCubit>(create: (_) => NotificationCubit()),
       ],
       child: MaterialApp(
         title: 'Suivi de Journaux',
@@ -90,7 +150,11 @@ class _MyAppState extends State<MyApp> {
           Locale('en', 'US'),
         ],
         locale: const Locale('fr', 'FR'),
-        home: const SplashScreen(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const SplashScreen(),
+          '/notifications': (context) => const NotificationScreen(),
+        },
       ),
     );
   }

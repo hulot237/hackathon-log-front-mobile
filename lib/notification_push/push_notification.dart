@@ -2,6 +2,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../cubits/notification/notification_cubit.dart';
+import '../models/notification.dart';
 
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
@@ -102,7 +106,7 @@ class PushNotifications {
   }
 
   static Future<void> showNotification(
-      RemoteMessage msg, FlutterLocalNotificationsPlugin fln) async {
+      RemoteMessage msg, FlutterLocalNotificationsPlugin fln, {BuildContext? context}) async {
     BigTextStyleInformation bigTextStyleInformation = BigTextStyleInformation(
       msg.notification!.body!,
       htmlFormatBigText: true,
@@ -122,12 +126,45 @@ class PushNotifications {
       android: androidPlatformChannelSpecifics,
       iOS: DarwinNotificationDetails(),
     );
+    
+    // Afficher la notification locale
     await fln.show(
       0,
       msg.notification!.title!,
       msg.notification!.body!,
       platformChannelSpecifics,
     );
+    
+    // Ajouter la notification au NotificationCubit si le contexte est disponible
+    if (context != null) {
+      try {
+        final notificationCubit = BlocProvider.of<NotificationCubit>(context);
+        
+        // Déterminer le type de notification en fonction du contenu ou des données
+        NotificationType type = NotificationType.info;
+        if (msg.data.containsKey('type')) {
+          final typeStr = msg.data['type'];
+          if (typeStr == 'warning') type = NotificationType.warning;
+          else if (typeStr == 'error') type = NotificationType.error;
+          else if (typeStr == 'success') type = NotificationType.success;
+        }
+        
+        // Créer et ajouter la notification
+        final appNotification = AppNotification(
+          id: msg.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          title: msg.notification!.title!,
+          message: msg.notification!.body!,
+          timestamp: DateTime.now(),
+          type: type,
+          isRead: false,
+          data: msg.data,
+        );
+        
+        notificationCubit.addNotification(appNotification);
+      } catch (e) {
+        print('Erreur lors de l\'ajout de la notification au cubit: $e');
+      }
+    }
   }
 
   

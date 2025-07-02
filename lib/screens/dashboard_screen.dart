@@ -8,8 +8,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../models/log.dart';
 import '../cubits/log/log_cubit.dart';
 import '../cubits/log/log_state.dart';
+import '../cubits/notification/notification_cubit.dart';
+import '../cubits/notification/notification_state.dart';
 import 'log_list_screen.dart';
 import 'log_detail_screen.dart';
+import 'notification_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -34,14 +37,42 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Les notifications s\'afficheraient ici'),
-                      duration: Duration(seconds: 2),
-                    ),
+              BlocBuilder<NotificationCubit, NotificationState>(
+                builder: (context, state) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                          );
+                        },
+                      ),
+                      if (state.unreadCount > 0)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              state.unreadCount > 9 ? '9+' : state.unreadCount.toString(),
+                              style: const TextStyle(color: Colors.white, fontSize: 10),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),

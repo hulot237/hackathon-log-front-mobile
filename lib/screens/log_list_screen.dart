@@ -3,10 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
-import '../models/log.dart';
+
 import '../cubits/log/log_cubit.dart';
 import '../cubits/log/log_state.dart';
+import '../cubits/notification/notification_cubit.dart';
+import '../cubits/notification/notification_state.dart';
+import '../models/log.dart';
 import 'log_detail_screen.dart';
+import 'notification_screen.dart';
 
 class LogListScreen extends StatefulWidget {
   const LogListScreen({super.key});
@@ -57,6 +61,45 @@ class _LogListScreenState extends State<LogListScreen> {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Tri des journaux à implémenter')),
+              );
+            },
+          ),
+          BlocBuilder<NotificationCubit, NotificationState>(
+            builder: (context, state) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                      );
+                    },
+                  ),
+                  if (state.unreadCount > 0)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          state.unreadCount > 9 ? '9+' : state.unreadCount.toString(),
+                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),
