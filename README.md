@@ -10,31 +10,48 @@ Une application Flutter moderne pour la gestion des journaux d'applications avec
 - **Tableau de bord**: Vue d'ensemble des statistiques de logs avec graphiques et journaux récents
 - **Liste des logs**: Liste complète des journaux avec capacités de filtrage et de recherche
 - **Détails des logs**: Vue détaillée des journaux individuels avec métadonnées et stacktrace
+- **Profil utilisateur**: Gestion des informations personnelles et préférences utilisateur
 - **Notifications push**: Alertes en temps réel pour les erreurs critiques via Firebase Messaging
+- **Centre de notifications**: Gestion centralisée des notifications avec marquage comme lues
 - **Design responsive**: Fonctionne sur différentes tailles d'écran
 
 ## Détails Techniques
 
 - **Framework**: Flutter 3.x
-- **Gestion d'état**: Bloc/Cubit
-- **Interface utilisateur**: Material Design 3
-- **Animations**: Flutter Animate pour des transitions fluides
+- **Gestion d'état**: Bloc/Cubit avec flutter_bloc
+- **Interface utilisateur**: Material Design 3 avec thème personnalisé
+- **Animations**: Flutter Animate pour des transitions et effets fluides
 - **Graphiques**: FL Chart pour la visualisation des données
 - **Notifications**: Firebase Cloud Messaging avec flutter_local_notifications
+- **Gestion des dates**: Intl pour le formatage et la localisation
+- **Thème**: Support du mode sombre et clair avec thème dynamique
 
 ## Structure du Projet
 
 ```
 lib/
-├── constants/       # Constantes et définitions de thème
-├── models/          # Modèles de données
-├── cubits/          # Gestion d'état avec Bloc/Cubit
-├── screens/         # Écrans de l'interface utilisateur
-├── widgets/         # Composants UI réutilisables
-├── services/        # Services (Firebase, notifications, etc.)
-├── utils/           # Fonctions utilitaires
-└── main.dart        # Point d'entrée de l'application
+├─ constants/       # Constantes et définitions de thème
+├─ models/          # Modèles de données (Log, Notification, User)
+├─ cubits/          # Gestion d'état avec Bloc/Cubit
+│   ├─ log/          # Gestion des logs
+│   ├─ notification/  # Gestion des notifications
+│   └─ user/         # Gestion du profil utilisateur
+├─ screens/         # Écrans de l'interface utilisateur
+├─ widgets/         # Composants UI réutilisables
+├─ services/        # Services (Firebase, notifications, etc.)
+├─ utils/           # Fonctions utilitaires
+└─ main.dart        # Point d'entrée de l'application
 ```
+
+## Fonctionnalité de Profil Utilisateur
+
+L'application dispose d'une page de profil utilisateur complète permettant aux utilisateurs de :
+
+- Consulter et modifier leurs informations personnelles (nom, email)
+- Gérer leurs préférences (mode sombre, notifications)
+- Visualiser les informations de compte (ID utilisateur, date de création, dernière connexion)
+
+La gestion d'état du profil utilisateur est assurée par un `UserCubit` dédié, qui maintient les informations utilisateur à travers l'application. L'interface utilisateur du profil est conçue avec des animations fluides et un design intuitif pour une expérience utilisateur optimale.
 
 ## Configuration des Notifications Push
 
@@ -62,8 +79,13 @@ L'application utilise des données simulées à des fins de démonstration. Dans
 ## Améliorations Futures
 
 - Intégration backend avec streaming de logs en temps réel
-- Options de filtrage avancées
-- Catégories de logs personnalisées
-- Exportation des logs dans différents formats
-- Gestion des utilisateurs et fonctionnalités de collaboration en équipe
+- Options de filtrage avancées et recherche plein texte
+- Catégories de logs personnalisées et étiquettes
+- Exportation des logs dans différents formats (CSV, JSON, PDF)
+- Fonctionnalités de collaboration en équipe avec rôles et permissions
 - Tableau de bord analytique avancé avec plus de visualisations
+- Intégration avec des services d'alerte externes (Slack, Email, SMS)
+- Authentification multi-facteurs et sécurité avancée
+- Synchronisation hors ligne et mise en cache des données
+- Tests unitaires et d'intégration complets
+- Support multi-langue et localisation
