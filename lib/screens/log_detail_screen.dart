@@ -40,6 +40,8 @@ class LogDetailScreen extends StatelessWidget {
               const SizedBox(height: 24),
             ],
             _buildMetadataSection(context),
+            const SizedBox(height: 24),
+            _buildActionButtons(context),
           ],
         ),
       ),
@@ -329,6 +331,230 @@ ${log.metadata != null && log.metadata!.isNotEmpty ? '\nMetadata:\n${log.metadat
       const SnackBar(
         content: Text('Détails du journal copiés dans le presse-papiers'),
         duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(context, 'Actions'),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildActionButton(
+              context,
+              'Bloquer',
+              Icons.block,
+              Colors.red,
+              () => _handleBlockAction(context),
+            ),
+            _buildActionButton(
+              context,
+              'Signaler',
+              Icons.flag_outlined,
+              Colors.orange,
+              () => _handleReportAction(context),
+            ),
+            _buildActionButton(
+              context,
+              'Analyser',
+              Icons.search,
+              Colors.blue,
+              () => _handleAnalyzeAction(context),
+            ),
+            _buildActionButton(
+              context,
+              'Contre-mesure',
+              Icons.shield_outlined,
+              Colors.green,
+              () => _handleCountermeasureAction(context),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(50),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 28,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleBlockAction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Bloquer la source'),
+        content: Text('Voulez-vous bloquer toutes les attaques futures provenant de ${log.source}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Source ${log.source} bloquée avec succès'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Bloquer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleReportAction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Signaler l\'attaque'),
+        content: const Text('Voulez-vous signaler cette attaque aux autorités compétentes?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Attaque signalée avec succès'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            child: const Text('Signaler'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleAnalyzeAction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Analyse approfondie'),
+        content: const Text('Lancer une analyse approfondie de cette attaque?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Simuler une analyse en cours
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Analyse en cours...'),
+                    ],
+                  ),
+                ),
+              );
+              
+              // Simuler la fin de l'analyse après 2 secondes
+              Future.delayed(const Duration(seconds: 2), () {
+                Navigator.pop(context); // Fermer le dialogue de chargement
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Résultats de l\'analyse'),
+                    content: const Text('L\'analyse a détecté une tentative d\'intrusion de type XSS. Niveau de menace: Modéré.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Fermer'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            child: const Text('Analyser'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleCountermeasureAction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Activer contre-mesure'),
+        content: const Text('Voulez-vous activer des contre-mesures automatiques pour ce type d\'attaque?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Contre-mesures activées avec succès'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Activer'),
+          ),
+        ],
       ),
     );
   }

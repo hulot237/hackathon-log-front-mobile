@@ -26,30 +26,30 @@ class LogCubit extends Cubit<LogState> {
     ];
     
     final errorMessages = [
-      'Échec de connexion au serveur',
-      'Jeton d\'authentification expiré',
-      'Échec de la requête de base de données',
-      'Délai d\'attente de la requête réseau dépassé',
-      'Fichier non trouvé',
-      'Permission refusée'
+      'Tentative d\'injection SQL détectée',
+      'Attaque par force brute sur l\'authentification',
+      'Tentative d\'exploitation de faille XSS',
+      'Attaque DDoS détectée sur le réseau',
+      'Tentative d\'accès non autorisé aux fichiers système',
+      'Violation de sécurité critique détectée'
     ];
     
     final warningMessages = [
-      'Connexion réseau lente détectée',
-      'Avertissement de mémoire faible',
-      'Tentative 3 sur 5',
-      'Cache invalidé',
-      'Utilisation de la configuration de secours',
-      'Utilisation d\'API obsolète détectée'
+      'Activité suspecte détectée sur le réseau',
+      'Tentative de reconnaissance du système',
+      'Multiples échecs d\'authentification détectés',
+      'Comportement anormal d\'utilisateur identifié',
+      'Tentative de contournement du pare-feu',
+      'Scan de ports suspects détecté'
     ];
     
     final infoMessages = [
-      'Utilisateur connecté avec succès',
-      'Données synchronisées',
-      'Cache mis à jour',
-      'Paramètres modifiés',
-      'Tâche en arrière-plan terminée',
-      'Nouvelle version disponible'
+      'Analyse de sécurité complétée',
+      'Mise à jour des signatures de menaces',
+      'Pare-feu mis à jour avec succès',
+      'Règles de détection d\'intrusion modifiées',
+      'Scan de vulnérabilités terminé',
+      'Nouvelle définition de menaces disponible'
     ];
     
     final now = DateTime.now();
